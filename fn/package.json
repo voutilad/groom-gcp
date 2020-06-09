@@ -1,11 +1,14 @@
 {
-  "name": "groom-cloud-function",
+  "name": "groom-fn",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Consumes and relays data into the Neo4j Graph of Doom",
+  "main": "groom.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Dave Voutila <voutilad@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git"
+  }
 }
