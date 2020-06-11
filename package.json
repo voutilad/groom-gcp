@@ -1,0 +1,31 @@
+{
+  "name": "groom-gcp",
+  "version": "1.0.0",
+  "description": "GCP cloud native glue for Groom project",
+  "main": "index.js",
+  "scripts": {
+    "udp": "node udp/publisher.js && exit 0",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voutilad/groom-gcp.git"
+  },
+  "keywords": [
+    "GCP",
+    "Neo4j"
+  ],
+  "author": "Dave Voutila <voutilad@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/voutilad/groom-gcp/issues"
+  },
+  "homepage": "https://github.com/voutilad/groom-gcp#readme",
+  "dependencies": {
+    "@google-cloud/pubsub": "^2.1.0",
+    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0"
+  }
+}
