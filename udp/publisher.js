@@ -12,6 +12,7 @@ const KEY = process.env.GOOGLE_APPLICATION_CREDENTIALS
 const MAX_BATCH_SIZE = process.env.GROOM_MAX_BATCH_SIZE || 1000
 const FLUSH_INTERVAL_MS = process.env.GROOM_FLUSH_INTERVAL_MS || 5000
 
+// Running in GCE/GAE, authentication is pulled from the aether
 const client = new PubSub({
   ...(PROJECT ? { projectId: PROJECT } : {}),
   ...(KEY ? { keyFilename: KEY } : {}),
@@ -22,7 +23,7 @@ const publisher = client.topic(TOPIC)
 function createUdpServer(messageHandler) {
   const server = dgram.createSocket('udp4')
 
-  // Stateful stuff
+  // Stateful stuff...our queue and a reference to our flush timer
   let queue = []
   let timerId = false
 
@@ -59,18 +60,13 @@ function createUdpServer(messageHandler) {
     resetTimer()
   }
 
-  // Locally queue and/or flush messages out via the message handler
-  const handleUdpMessage = (data) => {
-    queue.push(JSON.parse(data))
-    if (queue.length >= MAX_BATCH_SIZE) {
-      flush()
-    }
-  }
-
-  // Primary message handler
+  // All messages first get queued and flushed later
   server.on('message', (data) => {
     try {
-      handleUdpMessage(data)
+      queue.push(JSON.parse(data))
+      if (queue.length >= MAX_BATCH_SIZE) {
+        flush()
+      }
     } catch (e) {
       console.log(`ERROR: failed to process UDP message ('${e.message}')`)
       console.error(e)
