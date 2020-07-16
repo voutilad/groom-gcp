@@ -1,6 +1,16 @@
+const schemaIndexes = [
+  'CREATE INDEX frames FOR (f:Frame) ON (f.session, f.id)',
+  'CREATE INDEX ON :Frame(millis)',
+  'CREATE INDEX actors FOR (a:Actor) ON (a.session, a.id)',
+  'CREATE INDEX actorSessions FOR (a:Actor) ON (a.session)',
+  'CREATE INDEX ON :Actor(id)',
+  'CREATE INDEX subsectors FOR (s:SubSector) ON (s.session, s.id)',
+  'CREATE INDEX ON :Enemy(type)',
+  'CREATE INDEX states FOR (s:State) ON (s.actorSession, s.actorId)',
+]
 
 const insertEvents =  `
-MERGE (frame:Frame {tic: event.frame.tic})
+MERGE (frame:Frame {tic: event.frame.tic, session: event.session})
     ON CREATE SET frame.millis = event.frame.millis
 CREATE (ev:Event {type: event.type, counter: event.counter})
 CREATE (ev)-[:OCCURRED_AT]->(frame)
@@ -14,7 +24,8 @@ FOREACH (thing IN [x IN [event.actor, event.target] WHERE x IS NOT NULL] |
         actorState.angle = thing.position.angle,
         actorState.health = thing.health,
         actorState.armor = thing.armor,
-        actorState.actorId = thing.id
+        actorState.actorId = thing.id,
+        actorState.actorSession = thing.session
     CREATE (actorState)-[:IN_SUBSECTOR]->(subsector)
 
     // Hacky logic...hold your nose
@@ -48,7 +59,7 @@ WITH pair[0] AS prev, pair[1] AS next
 
 const threadStates = `
 MATCH (a:Actor)
-MATCH (s:State {actorId:a.id})-[:ACTOR_IN|:TARGET_IN]->(e:Event)
+MATCH (s:State {actorId:a.id, actorSession:a.session})-[:ACTOR_IN|:TARGET_IN]->(e:Event)
     WHERE NOT (s)<-[:PREV_STATE]-()
 WITH s, e ORDER BY e.counter
 WITH collect(s) AS states, s.actorId AS actorId
@@ -63,7 +74,7 @@ MATCH (a:Actor)-[r:CURRENT_STATE]->(old:State) DELETE r
 
 const currentStateUpdate = `
 MATCH (s:State) WHERE NOT (s)<-[:PREV_STATE]-()
-MATCH (a:Actor {id:s.actorId})
+MATCH (a:Actor {id:s.actorId, session:s.sessionId})
 MERGE (a)-[:CURRENT_STATE]->(s)
 `
 
@@ -76,6 +87,7 @@ MERGE (a)-[:INITIAL_STATE]->(first)
 `
 
 module.exports = {
+  schemaIndexes,
   insertEvents,
   threadFrames,
   threadEvents,
