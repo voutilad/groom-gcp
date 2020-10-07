@@ -6,6 +6,7 @@
   "scripts": {
     "udp": "node udp/publisher.js && exit 0",
     "ws": "node ws/server.js && exit 0",
+    "start": "node ws/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

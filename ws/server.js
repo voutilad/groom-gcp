@@ -13,8 +13,8 @@ const PROJECT = process.env.GOOGLE_CLOUD_PROJECT
 const KEY = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
 // Groom specific vars
-const MAX_BATCH_SIZE = process.env.GROOM_MAX_BATCH_SIZE || 1000
-const FLUSH_INTERVAL_MS = process.env.GROOM_FLUSH_INTERVAL_MS || 5000
+const MAX_BATCH_SIZE = parseInt(process.env.GROOM_MAX_BATCH_SIZE || '1000')
+const FLUSH_INTERVAL_MS = parseInt(process.env.GROOM_FLUSH_INTERVAL_MS || '5000')
 
 // http server details (no key passwords yet)
 const HOST = process.env.HOST || 'localhost'
@@ -30,8 +30,10 @@ const client = new PubSub({
 const publisher = client.topic(TOPIC)
 
 // Compose our WebSocket server with its built in queue and flush timers
-function createWsServer(messageHandler, httpServer) {
-  const server = new WebSocket.Server({ server: httpServer })
+// xxx: we use a "noServer" approach as our http server handles initial
+// connection waiting for an Upgrade request
+function createWsServer(messageHandler) {
+  const server = new WebSocket.Server({ noServer: true })
 // Stateful stuff...our queue and a reference to our flush timer
   let queue = []
   let timerId = false
@@ -49,7 +51,7 @@ function createWsServer(messageHandler, httpServer) {
     if (err) {
       console.error(err)
     } else {
-      console.log(`successfully flushed new message ${messageId}`)
+      console.log(`successfully flushed new PubSub message ${messageId}`)
     }
   }
 
@@ -68,14 +70,17 @@ function createWsServer(messageHandler, httpServer) {
     }
     resetTimer()
   }
+
+  // Main WebSocket handler logic for each connection post-handshake
   server.on('connection', (ws) => {
+    resetTimer()
+
     // All messages first get queued and flushed later
     ws.on('message', (message) => {
-      // console.log(`got message: ${message}`)
       try {
 	queue.push(JSON.parse(message.toString().trim()))
 	if (queue.length >= MAX_BATCH_SIZE) {
-	  flush()
+          flush()
 	}
       } catch (e) {
 	console.log(`ERROR: failed to process websocket message ('${e.message}')`)
@@ -84,14 +89,7 @@ function createWsServer(messageHandler, httpServer) {
     })
   })
 
-  server.on('listening', () => {
-    const addr = httpServer.address()
-    console.log(`server listening on ${addr.address}:${addr.port}`)
-    resetTimer()
-  })
-
   server.on('close', () => {
-    console.log(`closing server...`)
     clearInterval(timerId)
     flush()
   })
@@ -104,6 +102,7 @@ function createWsServer(messageHandler, httpServer) {
   return server
 }
 
+// Create an http or https server
 const httpServer = (SSL_CERT !== false && SSL_KEY !== false)
     ? https.createServer({
       cert: fs.readFileSync(SSL_CERT),
@@ -116,8 +115,35 @@ const wsServer = createWsServer((data, callback) => {
   return publisher.publishMessage({ data }, callback)
 }, httpServer)
 
+// Provide liveness/readiness checks separate from WS connections
+httpServer.on('upgrade', (req, socket, head) => {
+  console.log(`got upgrade request from ${socket.remoteAddress}:${socket.remotePort}`)
+  wsServer.handleUpgrade(req, socket, head, (ws) => {
+    wsServer.emit('connection', ws, req)
+  })
+})
+
+// Let the logs know when we're actually listening
+httpServer.on('listening', () => {
+  const addr = httpServer.address()
+  console.log(`http server listening on ${addr.address}:${addr.port}`)
+})
+
+// We provide some manual http routing to some health checks for GAE
+httpServer.on('request', (req, res) => {
+  if (req.url === '/liveness_check' || req.url === '/readiness_check') {
+    res.statusCode = 200
+    res.end('200 OK\n')
+  } else {
+    res.statusCode = 404
+    res.end('404: not found\n')
+  }
+  console.log(req.path)
+})
+
 // Make sure we don't die with some data in the queue
 const safeShutdown = () => {
+  console.log(`shutting down server and exiting...`)
   wsServer.close(() => {
     httpServer.close(() => process.exit(0))
   })

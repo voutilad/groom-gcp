@@ -1,0 +1,11 @@
+---
+runtime: nodejs
+env: flex
+livenses_check:
+  path: "/liveness_check"
+readiness_check:
+  path: "/readiness_check"
+env_variables:
+  TOPIC: "groom"
+  MAX_BATCH_SIZE: 1000
+  FLUSH_INTERVAL_MS: 5000
