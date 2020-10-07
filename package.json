@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "udp": "node udp/publisher.js && exit 0",
+    "ws": "node ws/server.js && exit 0",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,8 +23,9 @@
   },
   "homepage": "https://github.com/voutilad/groom-gcp#readme",
   "dependencies": {
-    "@google-cloud/pubsub": "^2.1.0",
-    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git"
+    "@google-cloud/pubsub": "^2.5",
+    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git#nodes2020",
+    "ws": "^7.3.1"
   },
   "devDependencies": {
     "eslint": "^7.2.0"
