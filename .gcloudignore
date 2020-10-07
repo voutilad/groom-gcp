@@ -16,9 +16,10 @@
 node_modules
 #!include:.gitignore
 #
-Dockerfile
+Dockerfile*
 .eslintrc.json
 app.yaml
 deploy-fn.sh
 secrets
 *.swp
+*#
