@@ -1,12 +1,13 @@
+/* global process */
 const {PubSub} = require('@google-cloud/pubsub');
 
-const TOPIC = 'test-subscription'
-const PROJECT = 'neo4j-se-team-201905'
-const KEY = '../secrets/neo4j-se-team-201905-208a5b2ddcc7.json'
+const SUBSCRIPTION = process.env.GROOM_SUBSCRIPTION || 'groom-sub'
+const PROJECT = process.env.GOOGLE_CLOUD_PROJECT
+const KEY = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
 function listenForMessages(
   projectId = PROJECT,
-  subscriptionName = TOPIC,
+  subscriptionName = SUBSCRIPTION,
   timeout = 60,
 )
 {
@@ -30,7 +31,7 @@ function listenForMessages(
     console.log(`${messageCount} message(s) received.`)
   }, timeout * 1000)
 
-  console.log(`subscribed to topic "${TOPIC}"`)
+  console.log(`subscribed to "${SUBSCRIPTION}"`)
 }
 
 listenForMessages()
