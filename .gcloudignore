@@ -18,8 +18,7 @@ node_modules
 #
 Dockerfile*
 .eslintrc.json
-app.yaml
-deploy-fn.sh
+*.sh
 secrets
 *.swp
 *#

@@ -2,6 +2,7 @@
   "name": "groom-gcp",
   "version": "1.0.0",
   "description": "GCP cloud native glue for Groom project",
+  "engines": { "node": ">=12" },
   "main": "index.js",
   "scripts": {
     "udp": "node udp/publisher.js && exit 0",
