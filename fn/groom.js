@@ -2,8 +2,7 @@
 const _ = require('lodash')
 const Promise = require('bluebird')
 
-const CypherSink = require('neo4j-serverless-functions/cud/CypherSink')
-const neo4j = require('neo4j-serverless-functions/neo4j')
+const { CypherSink, neo4j } = require('neo4j-serverless-functions/gil')
 const cypher = require('../cypher')
 
 exports.groom = async (event, context) => {
