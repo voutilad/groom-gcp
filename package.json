@@ -2,7 +2,9 @@
   "name": "groom-gcp",
   "version": "1.0.0",
   "description": "GCP cloud native glue for Groom project",
-  "engines": { "node": ">=12" },
+  "engines": {
+    "node": ">=12"
+  },
   "main": "index.js",
   "scripts": {
     "udp": "node udp/publisher.js && exit 0",
@@ -26,7 +28,7 @@
   "homepage": "https://github.com/voutilad/groom-gcp#readme",
   "dependencies": {
     "@google-cloud/pubsub": "^2.5",
-    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git#nodes2020",
+    "neo4j-serverless-functions": "git://github.com/voutilad/neo4j-serverless-functions.git#nodes2020-v2",
     "ws": "^7.3.1"
   },
   "devDependencies": {
