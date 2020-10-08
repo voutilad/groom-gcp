@@ -7,6 +7,7 @@ const cypher = require('../cypher')
 
 exports.groom = async (event, context) => {
   let { eventId } = context
+  const driver = neo4j.getDriver()
 
   /* Initial batch event insertion using the Cypher-based update approach.
    * The cypher provided by the gateway app is responsible for
@@ -18,7 +19,8 @@ exports.groom = async (event, context) => {
     // let sink = new CypherSink(payload)
 
     console.log(`writing data to ${process.env.NEO4J_URI || "UNDEFINED!!!"}`)
-    let results = await new CypherSink(payload).run()
+    let sink = new CypherSink(payload)
+    let results = await sink.run(driver.session(neo4j.getSessionConfig()))
     console.log(`ingestion result: ${JSON.stringify(results)}`)
   } catch (e) {
     console.error(e)
@@ -29,7 +31,7 @@ exports.groom = async (event, context) => {
    * This should be simplified or maybe put into its own function.
    */
   try {
-    const session = neo4j.getDriver().session()
+    const session = driver.session(neo4j.getSessionConfig())
     session.writeTransaction(async tx => {
       let postProcessingResults = await Promise.mapSeries(
         // run each of our post-processing queries in series
