@@ -1,4 +1,3 @@
----
 runtime: nodejs
 env: flex
 manual_scaling:
@@ -9,6 +8,6 @@ readiness_check:
   path: "/readiness_check"
 env_variables:
   HOST: 0.0.0.0
-  TOPIC: groom
+  GROOM_TOPIC: groom
   MAX_BATCH_SIZE: 1000
   FLUSH_INTERVAL_MS: 5000
