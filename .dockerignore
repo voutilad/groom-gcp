@@ -1,5 +1,5 @@
 node_modules
 secrets
 npm-debug.log
-app.yaml
 .eslintrc.json
+.git

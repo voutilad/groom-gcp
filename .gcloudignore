@@ -14,11 +14,8 @@
 .gitignore
 
 node_modules
-#!include:.gitignore
-#
 Dockerfile*
 .eslintrc.json
 *.sh
 secrets
 *.swp
-*#
