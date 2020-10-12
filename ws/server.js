@@ -113,7 +113,7 @@ const httpServer = (SSL_CERT !== false && SSL_KEY !== false)
 // Setup and run our server, giving it the PubSub publisher to use
 const wsServer = createWsServer((data, callback) => {
   return publisher.publishMessage({ data }, callback)
-}, httpServer)
+})
 
 // Provide liveness/readiness checks separate from WS connections
 httpServer.on('upgrade', (req, socket, head) => {
@@ -138,7 +138,6 @@ httpServer.on('request', (req, res) => {
     res.statusCode = 404
     res.end('404: not found\n')
   }
-  console.log(req.path)
 })
 
 // Make sure we don't die with some data in the queue
