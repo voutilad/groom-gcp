@@ -9,7 +9,7 @@ const cypher = require('../cypher')
 
 // GCP specific vars
 const TOPIC = process.env.GROOM_TOPIC || 'groom'
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT
+const PROJECT = process.env.GCP_PROJECT
 const KEY = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
 // Groom specific vars

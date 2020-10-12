@@ -2,7 +2,7 @@
 const {PubSub} = require('@google-cloud/pubsub');
 
 const SUBSCRIPTION = process.env.GROOM_SUBSCRIPTION || 'groom-sub'
-const PROJECT = process.env.GOOGLE_CLOUD_PROJECT
+const PROJECT = process.env.GCP_PROJECT
 const KEY = process.env.GOOGLE_APPLICATION_CREDENTIALS
 
 function listenForMessages(
